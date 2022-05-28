@@ -1,0 +1,30 @@
+api:
+  name: 'API @project.name@'
+  description: '@project.description'
+  version: '@project.version@'
+
+server:
+  port: 8090
+  servlet:
+    context-path: /connet-client-engine
+
+spring:
+  application:
+    name: connet-client-engine
+  datasource:
+    url: jdbc:postgresql://ec2-52-204-195-41.compute-1.amazonaws.com:5432/dap3hbc4aatmcu
+    username: jmrqpwpkuohbws
+    password: ff6c614159afd5ae2b988b043d93ee992d211edc72c1a4b1c1f521d7cd6bdf25
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        temp.use_jdbc_metadata_defaults: false
+        format_sql: true
+    show-sql: true
+    generate-ddl: true
+  jackson:
+    default-property-inclusion: NON_ABSENT

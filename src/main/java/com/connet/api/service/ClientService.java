@@ -7,8 +7,10 @@ import com.connet.api.repository.ClientRepository;
 import lombok.extern.log4j.Log4j2;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.codec.ResourceHttpMessageWriter;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.connet.api.model.entity.Client.convert;
@@ -23,13 +25,17 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
-    public UUID save(ClientDTO clientDTO) {
+    public ClientDTO save(ClientDTO clientDTO) throws ClientException {
+        Optional<Client> byEmail = clientRepository.findByEmail(clientDTO.getEmail());
+        if(byEmail.isPresent()) {
+            throw new ClientException("Email already registered");
+        }
         Client client = convert(clientDTO);
         client.setPassword(passwordEncoder(clientDTO.getPassword()));
-        return clientRepository.save(client).getClientId();
+        return ClientDTO.convert(clientRepository.save(client));
     }
 
-    public ClientDTO getClient(UUID id) {
+    public ClientDTO getClient(UUID id) throws ClientException {
         return clientRepository.findById(id).map(ClientDTO::convert).orElseThrow(() -> new ClientException("Client Not Found"));
     }
 
@@ -37,14 +43,15 @@ public class ClientService {
         clientRepository.deleteById(id);
     }
 
-    public UUID update(UUID id, ClientDTO clientDTO) {
+    public UUID update(UUID id, ClientDTO clientDTO) throws ClientException{
         ClientDTO c = ClientDTO.convert(clientRepository.findById(id).orElseThrow(() -> new ClientException("Client Not Found")));
         clientDTO.setClientId(c.getClientId());
+        clientDTO.setEmail(c.getEmail());
         Client client = convert(clientDTO);
         return clientRepository.save(client).getClientId();
     }
 
-    public ClientDTO login(String email, String password) {
+    public ClientDTO login(String email, String password) throws ClientException {
         ClientDTO c = ClientDTO.convert(clientRepository.findByEmail(email).orElseThrow(() -> new ClientException("Invalid Email")));
         if(passwordDecoder(c.getPassword()).equals(password)) {
             return c;

@@ -47,6 +47,9 @@ public class Client implements Serializable {
     @Column(name = "longitude")
     private Double longitude;
 
+    @Column(name = "state")
+    private String state;
+
     @Column(name = "plan_id")
     private Long planId;
 
